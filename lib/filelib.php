@@ -4800,3 +4800,20 @@ function file_pluginfile($relativepath, $forcedownload, $preview = null, $offlin
     }
 
 }
+
+/**
+ * Returns user private files path.
+ *
+ * @param context_user $context user context
+ * @return array of user private files
+ */
+function get_user_private_files_path($context) {
+    $fs = get_file_storage();
+
+    $files = [];
+    foreach ($fs->get_area_files($context->id, 'user', 'private', 0, 'itemid, filepath, filename', false) as $file) {
+        $files[] = $file->get_filepath() . $file->get_filename();
+    }
+
+    return $files;
+};

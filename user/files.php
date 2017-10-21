@@ -75,8 +75,22 @@ $mform = new user_files_form(null, array('data' => $data, 'options' => $options)
 if ($mform->is_cancelled()) {
     redirect($returnurl);
 } else if ($formdata = $mform->get_data()) {
+    $filesbefore = get_user_private_files_path($context);
     $formdata = file_postupdate_standard_filemanager($formdata, 'files', $options, $context, 'user', 'private', 0);
+
+    $event = \core\event\files_private_files_modified::create([
+        'context' => $context,
+        'other' => [
+            'files_before' => $filesbefore,
+            'files_after' => get_user_private_files_path($context),
+        ],
+    ]);
+    $event->trigger();
+
     redirect($returnurl);
+} else {
+    $event = \core\event\files_private_files_viewed::create(['context' => $context]);
+    $event->trigger();
 }
 
 echo $OUTPUT->header();
