@@ -1117,7 +1117,18 @@ class core_user_external extends external_api {
                          'maxfiles' => -1,
                          'areamaxbytes' => $maxareabytes);
 
+        $filesbefore = get_user_private_files_path($context);
+
         file_merge_files_from_draft_area_into_filearea($draftid, $context->id, 'user', 'private', 0, $options);
+
+        $event = \core\event\files_private_files_modified::create([
+            'context' => $context,
+            'other' => [
+                'files_before' => $filesbefore,
+                'files_after' => get_user_private_files_path($context),
+            ],
+        ]);
+        $event->trigger();
 
         return null;
     }
